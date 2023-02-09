@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+    <!-- cdn bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <!-- show alert if number student bigger a 10 -->
+    <div id="alert" class="container"></div>
+    <div class="bg-light vh-100 row container-fluid">
+        <div class="col col-lg-4">
+            <h3 class="text-primary">Nouveau Etudiant</h3>
+            <form name="studentForm" class="row g-2 needs-validation" novalidate id="studentForm">
+                <div class="col-12">
+                    <label for="validationCustom01" class="form-label">CIN</label>
+                    <input type="text" class="form-control" name="cin" id="validationCustom01">
+                    <!-- show message error if data input not valide  -->
+                    <small class="text-danger" id="error-cin">
+                    </small>
+                </div>
+                <div class="col-12">
+                    <label for="validationCustom02" class="form-label">Pérnom et Nom</label>
+                    <input type="text" class="form-control" name="fullName" id="validationCustom02">
+                    <!-- show message error if data input not valide  -->
+                    <small class="text-danger" id="error-fullName">
+                    </small>
+                </div>
+                <div class="col-12">
+                    <label for="validationCustomUsername" class="form-label">Addresse Email</label>
+                    <div class="input-group has-validation">
+                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                        <input type="email" class="form-control" name="email" id="validationCustomUsername"
+                            aria-describedby="inputGroupPrepend">
+                    </div>
+                    <!-- show message error if data input not valide  -->
+                    <small class="text-danger" id="error-email">
+                    </small>
+                </div>
+                <div class="col-12">
+                    <label for="validationCustom03" class="form-label">Niveau scolaire</label>
+                    <div class="d-flex justify-content-between w-100 align-items-center gap-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" checked value="Secondaire" name="Nscolaire"
+                                id="flexRadioDefault1">
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                Secondaire
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="universitaire" name="Nscolaire"
+                                id="flexRadioDefault1">
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                Universitaire
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" value="autre" type="radio" name="Nscolaire"
+                                id="flexRadioDefault1">
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                Autre
+                            </label>
+                        </div>
+                    </div>
+                    <!-- show message error if data input not valide  -->
+                    <small class="text-danger" id="error-Nscolaire">
+                    </small>
+                </div>
+                <div class="col-12">
+                    <label for="validationCustom04" class="form-label">Modules de formation</label>
+                    <select class="form-select" name="module" id="validationCustom04">
+                        <option selected disabled value="">Choose...</option>
+                        <option>html</option>
+                        <option>css</option>
+                        <option>javascript</option>
+                        <option>jQuery</option>
+                    </select>
+                    <!-- show message error if data input not valide  -->
+                    <small class="text-danger" id="error-module">
+                    </small>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary" id="btnAdd" type="submit">Envoyer</button>
+                    <button class="btn btn-secondary" type="reset">Annuler</button>
+                </div>
+            </form>
+        </div>
+        <div class="col col-lg-8">
+            <h3 class="text-primary">List Student</h3>
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">cin</th>
+                        <th scope="col">prenom et nom</th>
+                        <th scope="col">email</th>
+                        <th scope="col">module</th>
+                        <th scope="col">neveau scolaire</th>
+                        <th scope="col">action</th>
+                    </tr>
+                </thead>
+                <!-- list of student created -->
+                <tbody id="listStudent">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // this function for delete student in table of student
+        function deleteStudent(id) {
+            let listStudent = document.getElementById("listStudent");
+            // filter data (list of students) and return new list not conatine student who has data-id === id 
+            let newListStudent = Array.from(listStudent.children).filter(element => +element.getAttribute('data-id') !== id)
+            // replace data in table
+            // the method ...newListStudent is short of use replace element by element 
+            // exemple : list = [a,b,c] && functionName(list[0],list[1],list[2]) === functionName(...list)
+            listStudent.replaceChildren(...newListStudent);
+        }
+        let formValidate = document.getElementById("studentForm");
+        // add event listener to validate data and show errors if exist also created a new row of table containe new data send
+        formValidate.addEventListener('submit',
+            function (event) {
+                let validate = true;
+                const errorInput = { cin: "", fullName: "", email: "", module: "", Nscolaire: "" };
+                const data = { cin: "", fullName: "", email: "", module: "", Nscolaire: "" };
+                event.preventDefault();
+                // get inputs of form and remove buttons
+                let studentForm = Array.from(formValidate).slice(0, 7)
+                let i = 1;
+                // console.log(studentForm);
+                // loop for all input and get name && value && checked variables 
+                for (const { name, value, checked } of studentForm) {
+                    let inputValide = true;
+                    if (!value && name !== "Nscolaire" || (!checked && name === "Nscolaire")) {
+                        if (name === "Nscolaire" && i < 3) {
+                            i++
+                            continue
+                        }
+                        errorInput[name] = `error the ${name} is Required`
+                        inputValide = false;
+                    }
+                    // isNaN false if value is number
+                    if (name === "cin" && isNaN(value) && value.length !== 8) {
+                        errorInput[name] = `error the ${name} is number and max is 8`
+                        inputValide = false;
+                    }
+                    // test if input  is valide and add data to object data else add empty string
+                    if (inputValide) {
+                        data[name] = value;
+                    } else {
+                        data[name] = "";
+                    }
+                }
+                // show error if exsits also remove if valide or corrected error
+                Object.keys(errorInput).forEach(key => {
+                    if (errorInput[key]) {
+                        document.getElementById('error-' + key).innerHTML = errorInput[key]
+                        // if error exsits set varibale validate to false 
+                        validate = false
+                    } else {
+                        document.getElementById('error-' + key).innerHTML = ""
+                    }
+                });
+                // finaly if validated all input started create new row of table
+                if (validate) {
+                    // create elemanet
+                    let listStudent = document.getElementById("listStudent")
+                    // genatreted the random id
+                    let id = Math.floor(Math.random() * 7855687);
+                    // create element and add in table
+                    let tr = document.createElement("tr")
+                    tr.setAttribute('data-id', id);
+                    Object.keys(data).forEach(key => {
+                        let td = document.createElement("td")
+                        td.innerText = `${data[key]}`
+                        tr.appendChild(td);
+                    });
+                    let btn = document.createElement("button")
+                    btn.innerText = "delete"
+                    btn.classList.add('btn')
+                    btn.classList.add('btn-link')
+                    btn.addEventListener("click",()=>deleteStudent(id))
+                    tr.appendChild(btn);
+                    listStudent.append(tr)
+                    // reset inputs list after create the element
+                    formValidate.reset();
+                    // checked if the list students has a greater than or equal to 10 students 
+                    if (listStudent.children.length >= 10) {
+                        // show alert add message also disabled btn add new student
+                        let alertE = document.getElementById("alert");
+                        alertE.classList.add("alert")
+                        alertE.classList.add("alert-danger")
+                        alertE.innerText = "max add student";
+                        document.getElementById("btnAdd").setAttribute('disabled', "true")
+
+                    }
+                }
+            })
+
+        
+    </script>
+</body>
+
+</html>
